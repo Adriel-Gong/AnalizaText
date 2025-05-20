@@ -1,3 +1,12 @@
+/*
+Nombre del programa: AnalizaText
+Objetivo: Programa analizador de archivos de texto .txt que retorna
+conteo de caracteres y palabras, palabras mas usadas (frecuencia de uso y porcentaje) 
+en forma de graficas a traves de un nuevo archivo .txt
+Autores: Ek Gongora Adriel, De la Rosa Garcia Oscar, Novelo Hernandez Jarib Alberto
+Fecha: 12/05/25
+Version: 1.0
+*/
 #define MAX_PATH 256
 #define MAX_CONTENT 100000
 #define MAX_WORDS 5000
@@ -171,15 +180,15 @@ void text_graphs() {
 	
 	printf("\n=== GRAFICAS DE FRECUENCIA ===\n");
 	
-	// Seleccionar top 5 palabras más usadas o reducir el top si hay menos de 5 palabras únicas
+	// Seleccionar top 5 palabras mÃ¡s usadas o reducir el top si hay menos de 5 palabras Ãºnicas
 	if (unique_words < 5) {
 		limit = unique_words;
 	} else {
 		limit = 5;
 	}
 	
-	// Calcular porcentaje de frecuencia para las palabras más usadas
-	printf("\nTop %d palabras más frecuentes:\n", limit);
+	// Calcular porcentaje de frecuencia para las palabras mÃ¡s usadas
+	printf("\nTop %d palabras mÃ¡s frecuentes:\n", limit);
 	for (i = 0; i < limit; i++) {
 		percentage = (float)word_freq[i].count / total_words * 100;
 		printf("\n%s (%.2f%%): ", word_freq[i].word, percentage);
@@ -189,13 +198,13 @@ void text_graphs() {
 	}
 	printf("\n");
 	
-	// Gráfico de comparación de longitudes
+	// GrÃ¡fico de comparaciÃ³n de longitudes
 	printf("\nCOMPARACION DE LONGITUDES DE PALABRAS:\n");
 	
 	//bug fix de archivo vacio
 	if (unique_words == 0) return;
 	
-	// Encontrar palabra más larga, más corta y promedio
+	// Encontrar palabra mÃ¡s larga, mÃ¡s corta y promedio
 	for (i = 0; i < unique_words; i++) {
 		len = strlen(word_freq[i].word);
 		total_chars += len;
@@ -213,17 +222,17 @@ void text_graphs() {
 	avg_len = (float)total_chars / unique_words;
 	
 	//Salida
-	printf("\nPalabra más larga (%d caracteres): %s\n", max_len, longest_word);
+	printf("\nPalabra mÃ¡s larga (%d caracteres): %s\n", max_len, longest_word);
 	printf("Promedio de caracteres por palabra: %.2f\n", avg_len);
-	printf("Palabra más corta (%d caracteres): %s\n", min_len, shortest_word);
+	printf("Palabra mÃ¡s corta (%d caracteres): %s\n", min_len, shortest_word);
 	
-	// Gráfico de comparación y frecuencias en asteriscos
+	// GrÃ¡fico de comparaciÃ³n y frecuencias en asteriscos
 	printf("\nGrafico de comparacion:\n");
-	printf("Palabra más larga [%s]: ", longest_word);
+	printf("Palabra mÃ¡s larga [%s]: ", longest_word);
 	for (i = 0; i < max_len; i++) printf("*");
 	printf("\nPromedio de caracteres:    ");
 	for (i = 0; i < (int)avg_len; i++) printf("*");
-	printf("\nPalabra más corta [%s]: ", shortest_word);
+	printf("\nPalabra mÃ¡s corta [%s]: ", shortest_word);
 	for (i = 0; i < min_len; i++) printf("*");
 	printf("\n");
 }
@@ -248,7 +257,7 @@ void text_data_file() {
 	scanf("%255s", output_path);
 	while(getchar() != '\n');
 	
-	//Añadir extensión .txt si no la tiene
+	//AÃ±adir extensiÃ³n .txt si no la tiene
 	if (strstr(output_path, ".txt") == NULL) {
 		strcat(output_path, ".txt");
 	}
@@ -260,20 +269,20 @@ void text_data_file() {
 		return;
 	}
 	
-	//Calcular estadísticas básicas
+	//Calcular estadÃ­sticas bÃ¡sicas
 	for (i = 0; i < unique_words; i++) {
 		total_chars_in_words += strlen(word_freq[i].word) * word_freq[i].count;
 	}
 	avg_chars_per_word = (float)total_chars_in_words / total_words;
 	
-	// Escribir estadísticas básicas
+	// Escribir estadÃ­sticas bÃ¡sicas
 	fprintf(output_file, "=== ANALISIS DE TEXTO ===\n\n");
 	fprintf(output_file, "ESTADISTICAS BASICAS:\n");
 	fprintf(output_file, "Caracteres totales: %ld\n", file_size);
 	fprintf(output_file, "Palabras totales: %d\n", total_words);
 	fprintf(output_file, "Promedio de caracteres por palabra: %.2f\n\n", avg_chars_per_word);
 	
-	// Top 5 palabras más frecuentes
+	// Top 5 palabras mÃ¡s frecuentes
 	fprintf(output_file, "TOP 5 PALABRAS MAS FRECUENTES:\n");
 	limit = (unique_words < 5) ? unique_words : 5;
 	for (i = 0; i < limit; i++) {
@@ -283,7 +292,7 @@ void text_data_file() {
 	}
 	fprintf(output_file, "\n");
 	
-	// Gráficas de frecuencia
+	// GrÃ¡ficas de frecuencia
 	fprintf(output_file, "GRAFICAS DE FRECUENCIA:\n\n");
 	for (i = 0; i < limit; i++) {
 		percentage = (float)word_freq[i].count / total_words * 100;
@@ -295,7 +304,7 @@ void text_data_file() {
 	}
 	fprintf(output_file, "\n");
 	
-	// Comparación de longitudes de palabras
+	// ComparaciÃ³n de longitudes de palabras
 	fprintf(output_file, "COMPARACION DE LONGITUDES DE PALABRAS:\n\n");
 	for (i = 0; i < unique_words; i++) {
 		len = strlen(word_freq[i].word);
@@ -329,7 +338,7 @@ void text_data_file() {
 	printf("\nResultados guardados exitosamente en: %s\n", output_path);
 }
 
-// Función principal
+// FunciÃ³n principal
 int main() {
 	int option;
 	int file_loaded = 0;
