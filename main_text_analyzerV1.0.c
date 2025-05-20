@@ -1,3 +1,169 @@
+/*
+Nombre del programa: AnalizaText
+Objetivo: Programa analizador de archivos de texto .txt que retorna
+conteo de caracteres y palabras, palabras mas usadas (frecuencia de uso y porcentaje) 
+en forma de graficas a traves de un nuevo archivo .txt
+Autores: Ek Gongora Adriel, De la Rosa Garcia Oscar, Novelo Hernandez Jarib Alberto
+Fecha: 12/05/25
+Version: 1.0
+*/
+#define MAX_PATH 256
+#define MAX_CONTENT 100000
+#define MAX_WORDS 5000
+#define MAX_WORD_LEN 50
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Variables globales
+char file_content[MAX_CONTENT];
+long file_size = 0;
+int total_words = 0;
+
+struct WordInfo {
+	char word[MAX_WORD_LEN];
+	int count;
+} word_freq[MAX_WORDS];
+
+int unique_words = 0;
+
+// Funcion para identificar caracteres
+int is_letter(char c) {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+//Funcion para convertir mayusculas a minusculas para que tengan el mismo valor ASCII
+char to_lower(char c) {
+	if (c >= 'A' && c <= 'Z') return c + 32;
+	return c;
+}
+
+//Funcion ordenamiento de frecuencias de mayor a menor
+void sort_words() {
+	int i;
+	
+	for (i = 0; i < unique_words - 1; i++) {
+		for (int j = i + 1; j < unique_words; j++) {
+			if (word_freq[j].count > word_freq[i].count) {
+				struct WordInfo temp = word_freq[i];
+				word_freq[i] = word_freq[j];
+				word_freq[j] = temp;
+			}
+		}
+	}
+}
+
+//Funcion para analizar el texto y contar la frecuencia de las palabras
+void process_text() {
+	total_words = 0; 
+	unique_words = 0; 
+	char current_word[MAX_WORD_LEN] = {0}; //Vector temporal para almacenar la palabra actual
+	int word_pos = 0; 
+	int i, j; 
+	
+	//Bucle para cada caracter en el texto cargado
+	for (i = 0; i < file_size; i++) {
+		//If para detectar el inicio y fin de una palabra y a su vez, convertirla toda en minuscula
+		if (is_letter(file_content[i])) {
+			if (word_pos < MAX_WORD_LEN - 1) {
+				current_word[word_pos++] = to_lower(file_content[i]);
+			}
+		} else if (word_pos > 0) {
+			current_word[word_pos] = '\0'; //Detecta fin de la palabra
+			total_words++; //Incrementa el numero de palabras
+			
+			//Buscar palabras repetidas y aumentar su frecuencia de ser asi
+			int found = 0;
+			for (j = 0; j < unique_words; j++) {
+				if (strcmp(word_freq[j].word, current_word) == 0) {
+					word_freq[j].count++;
+					found = 1;
+					break;
+				}
+			}
+			
+			//Registrar palabras nuevas
+			if (!found && unique_words < MAX_WORDS) {
+				strcpy(word_freq[unique_words].word, current_word);
+				word_freq[unique_words].count = 1;
+				unique_words++;
+			}
+			word_pos = 0;
+		}
+	}
+	sort_words();
+}
+
+//Funcion encargada a la carga del archivo de texto 
+void text_reader() {
+	char file_path[MAX_PATH]; 
+	FILE *file = NULL; //Puntero al archivo
+	int c; 
+	
+	printf("\nIngrese la ruta del archivo .txt: ");
+	scanf("%255s", file_path);
+	
+	//Verificar extension .txt
+	if (strstr(file_path, ".txt") == NULL) {
+		printf("Error: El archivo debe tener extension .txt\n");
+		return;
+	}
+	
+	//Abrir el archivo de texto
+	file = fopen(file_path, "r");
+	if (file == NULL) {
+		printf("Error al cargar el archivo, verifique la ruta e intente de nuevo.\n");
+		return;
+	}
+	
+	//Leer contenido del archivo
+	file_size = 0;
+	while (file_size < MAX_CONTENT - 1 && (c = fgetc(file)) != EOF) {
+		file_content[file_size++] = (char)c;
+	}
+	file_content[file_size] = '\0';
+	fclose(file);
+	
+	//Verificar si el archivo esta vacio
+	if (file_size == 0) {
+		printf("Error: El archivo esta vacio.\n");
+		return;
+	}
+	
+	process_text();
+	printf("\nArchivo cargado correctamente.\n");
+}
+
+//Funcion encargada para el analisis y muestreo de la informacion en numeros
+void text_stadistics() {
+	if (file_size == 0) {
+		printf("\nError: No hay archivo cargado. Use la opcion 1 primero.\n");
+		return;
+	}
+	
+	// Calcular el promedio de caracteres por palabra
+	int total_chars_in_words = 0;
+	for (int i = 0; i < unique_words; i++) {
+		total_chars_in_words += strlen(word_freq[i].word) * word_freq[i].count;
+	}
+	float avg_chars_per_word = (float)total_chars_in_words / total_words;
+	
+	printf("\n=== ESTADISTICAS DEL TEXTO ===\n");
+	printf("Caracteres totales: %ld\n", file_size);
+	printf("Palabras totales: %d\n", total_words);
+	printf("Promedio de caracteres por palabra: %.2f\n", avg_chars_per_word);
+	
+	// Mostrar palabras mas frecuentes
+	printf("\nTop 5 palabras mas frecuentes:\n");
+	int limit = (unique_words < 5) ? unique_words : 5;
+	for (int i = 0; i < limit; i++) {
+		float percentage = (float)word_freq[i].count / total_words * 100;
+		printf("%d. %s - %d ocurrencias (%.2f%%)\n", 
+			   i+1, word_freq[i].word, word_freq[i].count, percentage);
+	}
+}
+
 // Funcion encargada para la creacion y muestreo de graficas simples en la consola
 void text_graphs() {
 	int limit, len, max_len = 0, min_len = MAX_WORD_LEN, total_chars = 0;
